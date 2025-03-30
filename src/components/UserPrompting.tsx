@@ -61,7 +61,7 @@ const UserPrompting: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (messages.length < 10) {
+    if (messages.length < 5) {
       setError('Please add at least 10 sample emails before submitting.');
       return;
     }
@@ -412,7 +412,7 @@ const UserPrompting: React.FC = () => {
           {!submitted ? (
             <button
               onClick={handleSubmit}
-              disabled={loading || messages.length < 10}
+              disabled={loading || messages.length < 5}
               style={styles.submitButton}
             >
               {loading ? (
@@ -426,7 +426,7 @@ const UserPrompting: React.FC = () => {
             </button>
           ) : (
             <button
-              onClick={() => window.location.href = "/generate"}
+              onClick={() => window.location.href = "/emails"}
               style={{
                 ...styles.submitButton,
                 backgroundColor: '#2f855a',

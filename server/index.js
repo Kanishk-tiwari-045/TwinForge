@@ -23,6 +23,23 @@ const API_KEY = "AIzaSyCJ5GaisuqS73ju5rqs0zAkMvaoR09pOF8";
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+
+app.get('/api/emails', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('emails')
+      .select('id, subject, body, sender, date');
+
+    if (error) {
+      return res.status(500).send({ error: 'Error fetching data from Supabase' });
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).send({ error: 'Something went wrong' });
+  }
+});
+
 const generationConfig = {
   temperature: 0.5,
   topP: 0.8,

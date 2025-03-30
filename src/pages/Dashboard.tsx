@@ -7,7 +7,6 @@ import {
   Calendar,
   FileText,
   Search,
-  LogOut, // Alias the icon to avoid conflict
   CreditCard,
   Bell,
 } from 'lucide-react';
@@ -44,10 +43,32 @@ export default function Dashboard() {
 
     getUser();
   }, [navigate]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+  
+  // New function for Email button click
+  const handleEmailClick = async () => {
+    // Get username from localStorage
+    const username = localStorage.getItem("username");
+    if (!username) {
+      alert("User not found. Please log in.");
+      return;
+    }
+    // Query Supabase to check if the username exists in user_styles
+    const { data, error } = await supabase
+      .from("user_styles")
+      .select("*")
+      .eq("user_id", username);
+    if (error) {
+      console.error("Error checking user style:", error);
+      alert("Something went wrong while checking your writing style.");
+      return;
+    }
+    if (data && data.length > 0) {
+      // Found a record; navigate to /emails page
+      navigate("/emails");
+    } else {
+      // No record found; navigate to the analysis page
+      navigate("/user-prompting");
+    }
   };
 
   if (loading) {
@@ -64,22 +85,22 @@ export default function Dashboard() {
       <div className="w-64 bg-gray-800/50 backdrop-blur-sm border-r border-gray-700/50">
         <div className="h-full flex flex-col">
           <nav className="flex-1 p-4 space-y-2">
-            <button
-              onClick={() => navigate("/news-feed")}
-              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg bg-gray-700/50 hover:bg-gray-700"
-            >
-              <Brain className="w-5 h-5" />
-              <span>News Feed</span>
-            </button>
-            {/* Update the Email button to navigate to the UserPrompting page */}
-            <button
-              onClick={() => navigate("/user-prompting")}
-              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50"
-            >
+          <button 
+            onClick={() => navigate('/news-feed')}
+            className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg bg-gray-700/50 hover:bg-gray-700">
+            <Brain className="w-5 h-5" />
+            <span>News Feed</span>
+          </button>
+            {/* Update the Email button to use handleEmailClick */}
+            <button 
+              onClick={handleEmailClick}
+              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50">
               <Mail className="w-5 h-5" />
               <span>Email</span>
             </button>
-            <button className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50">
+            <button 
+            onClick={() => navigate('/calendar')}
+            className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50">
               <Calendar className="w-5 h-5" />
               <span>Calendar</span>
             </button>
@@ -95,19 +116,6 @@ export default function Dashboard() {
               <span>Research</span>
             </button>
           </nav>
-
-          <div className="p-4 border-t border-gray-700/50">
-            <div className="flex items-center space-x-3 mb-4"></div>
-            <div className="space-y-2">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

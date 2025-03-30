@@ -8,9 +8,11 @@ import Pricing from './components/Pricing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import NewsFeed from "./components/NewsFeed";
-import ResearchAssistant from "./components/ResearchAssistant"; // Add this import
+import ResearchAssistant from "./components/ResearchAssistant";
+import EmailPage from './components/EmailPage';
 import Dashboard from './pages/Dashboard';
 import UserPrompting from './components/UserPrompting';
+import Calendar from './components/Calender';
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
           <Route path="/email-assistant" element={<UserPrompting />} />
           <Route path="/news-feed" element={<NewsFeed />} />
           <Route path="/research-assistant" element={<ResearchAssistant />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/emails" element={<EmailPage />} />
         </Routes>
       </div>
     </Router>

@@ -34,8 +34,8 @@ export default function Login() {
         localStorage.setItem('user_id', data.user.id);
         navigate('/dashboard');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function Login() {
             Sign in to your account
           </h2>
         </div>
-        
+
         {error && (
           <div className="flex items-center gap-2 p-4 text-sm text-red-400 bg-red-900/50 rounded-lg">
             <AlertCircle size={18} />
@@ -75,7 +75,7 @@ export default function Login() {
                 placeholder="Username"
               />
             </div>
-            
+
             <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
@@ -101,7 +101,7 @@ export default function Login() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
 

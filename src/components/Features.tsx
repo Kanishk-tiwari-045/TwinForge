@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Calendar, FileText, Search, Zap } from 'lucide-react';
+import { Mail, Calendar, FileText, Search } from 'lucide-react';
 import type { Feature } from '../types';
 
 const features: Feature[] = [

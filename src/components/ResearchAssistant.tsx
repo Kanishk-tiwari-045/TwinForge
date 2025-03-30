@@ -1,10 +1,17 @@
-import { useState } from "react";
+// src/components/ResearchAssistant.tsx
+import React, { useState } from "react";
+import axios from "axios";
 
-const ResearchAssistant = () => {
-  const [interest, setInterest] = useState("");
-  const [insights, setInsights] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+interface Insight {
+  summary: string;
+  action: string;
+}
+
+const ResearchAssistant: React.FC = () => {
+  const [interest, setInterest] = useState<string>("");
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Hardcoded user_id for demo; replace with auth logic later
   const userId = "hiii"; // Replace with actual user ID from your app's auth system
@@ -21,36 +28,30 @@ const ResearchAssistant = () => {
     setInsights([]);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/research-insights`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          topic: interest,
-        }),
-      });
+      const response = await axios.post(
+        `${BACKEND_URL}/research-insights`,
+        { user_id: userId, topic: interest },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} - ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      if (!data.success) {
+      if (!response.data.success) {
         throw new Error("Failed to generate insights.");
       }
 
-      setInsights(data.insights);
+      setInsights(response.data.insights);
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
       console.error("Error fetching insights:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     fetchInsights();
   };
