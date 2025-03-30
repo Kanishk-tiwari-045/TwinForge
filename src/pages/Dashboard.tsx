@@ -63,18 +63,19 @@ export default function Dashboard() {
       {/* Sidebar */}
       <div className="w-64 bg-gray-800/50 backdrop-blur-sm border-r border-gray-700/50">
         <div className="h-full flex flex-col">
-
           <nav className="flex-1 p-4 space-y-2">
-            <button 
-            onClick={() => navigate('/news-feed')}
-            className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg bg-gray-700/50 hover:bg-gray-700">
+            <button
+              onClick={() => navigate("/news-feed")}
+              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg bg-gray-700/50 hover:bg-gray-700"
+            >
               <Brain className="w-5 h-5" />
               <span>News Feed</span>
             </button>
             {/* Update the Email button to navigate to the UserPrompting page */}
-            <button 
-              onClick={() => navigate('/user-prompting')}
-              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50">
+            <button
+              onClick={() => navigate("/user-prompting")}
+              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50"
+            >
               <Mail className="w-5 h-5" />
               <span>Email</span>
             </button>
@@ -86,15 +87,17 @@ export default function Dashboard() {
               <FileText className="w-5 h-5" />
               <span>To Do List</span>
             </button>
-            <button className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50">
+            <button
+              onClick={() => navigate("/research-assistant")}
+              className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-gray-700/50"
+            >
               <Search className="w-5 h-5" />
               <span>Research</span>
             </button>
           </nav>
 
           <div className="p-4 border-t border-gray-700/50">
-            <div className="flex items-center space-x-3 mb-4">
-            </div>
+            <div className="flex items-center space-x-3 mb-4"></div>
             <div className="space-y-2">
               <button
                 onClick={handleLogout}
