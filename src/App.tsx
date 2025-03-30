@@ -5,9 +5,9 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import Pricing from './components/Pricing';
-import About from './components/About';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import NewsFeed from "./components/NewsFeed";
 import Dashboard from './pages/Dashboard';
 import UserPrompting from './components/UserPrompting';
 
@@ -23,7 +23,6 @@ function App() {
               <Hero />
               <Features />
               <Pricing />
-              <About />
             </>
           } />
           <Route path="/login" element={<Login />} />
@@ -31,6 +30,7 @@ function App() {
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/user-prompting" element={<UserPrompting />} />
           <Route path="/email-assistant" element={<UserPrompting />} />
+          <Route path="/news-feed" element={<NewsFeed/>} />
         </Routes>
       </div>
     </Router>

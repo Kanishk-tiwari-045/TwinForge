@@ -1,8 +1,9 @@
-
 import dotenv from 'dotenv';
 dotenv.config();
-
+import axios from "axios";
+import { JSDOM } from "jsdom";
 import express from 'express';
+import { Readability } from '@mozilla/readability';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
@@ -14,8 +15,9 @@ app.use(express.json());
 // Initialize Supabase Client
 const supabase = createClient("https://hfduzkjpzvowjzrkeagp.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZHV6a2pwenZvd2p6cmtlYWdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMzIzMjksImV4cCI6MjA1ODgwODMyOX0.1F0lhUhrzh84r1QP64ta0utUyztSqvnjPBcnUujGtaE");
 
-// Initialize Gemini AI"
-const genAI = new GoogleGenerativeAI("AIzaSyCJ5GaisuqS73ju5rqs0zAkMvaoR09pOF8");
+// Initialize Gemini AI
+const API_KEY = "AIzaSyCJ5GaisuqS73ju5rqs0zAkMvaoR09pOF8";
+const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 const generationConfig = {
@@ -25,6 +27,50 @@ const generationConfig = {
   maxOutputTokens: 1024,
   responseMimeType: "text/plain",
 };
+
+app.post("/summarize", async (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  try {
+    // Fetch article content
+    const response = await axios.get(url);
+    if (!response.data) {
+      throw new Error("Failed to fetch article content");
+    }
+    const html = response.data;
+
+    // Set up a JSDOM environment
+    const dom = new JSDOM(html, { url });
+    const { document } = dom.window;
+
+    // Use Readability to extract content
+    const reader = new Readability(document);
+    const article = reader.parse();
+    if (!article || !article.textContent) {
+      throw new Error("Unable to extract article content");
+    }
+    const content = article.textContent;
+
+    // Prepare prompt for Gemini
+    const prompt = `Summarize the following article in a concise manner, capturing the key points and main ideas:\n\n${content}`;
+
+    // Use the initialized model instead of a direct API call
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig
+    });
+
+    const summary = result.response.text();
+    
+    res.json({ summary });
+  } catch (error) {
+    console.error("Error summarizing article:", error);
+    res.status(500).json({ error: error.message || "Failed to summarize article" });
+  }
+});
 
 /**
  * API 1: Analyze and Save User Writing Style
@@ -76,6 +122,7 @@ Do not include any explanations, only return valid JSON.
     // Call Gemini API
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig
     });
 
     const responseText = result.response.text();
@@ -88,16 +135,16 @@ Do not include any explanations, only return valid JSON.
 
     const userStyleData = JSON.parse(jsonMatch[0]).user_style;
 
-    // **🚀 Fix: Ensure upsert works by correctly using `onConflict`**
+    // Fix: Ensure upsert works by correctly using `on_conflict`
     const { error } = await supabase
-  .from("user_styles")
-  .upsert(
-    { user_id, ...userStyleData },
-    { 
-      conflict: 'username', // Newer syntax
-      updateColumns: ['tone', 'vocabulary', 'humor', 'emoji_usage', 'sentence_structure', 'greeting_style', 'closing_style', 'response_pattern', 'level_of_enthusiasm'] // Explicitly list columns to update
-    }
-  );
+      .from("user_styles")
+      .upsert(
+        { user_id, ...userStyleData },
+        { 
+          onConflict: 'user_id', // Corrected: use user_id as the conflict column
+          ignoreDuplicates: false
+        }
+      );
 
     if (error) {
       console.error("Supabase Insert Error:", error);
@@ -151,7 +198,11 @@ Return the response strictly in this JSON format:
 Do not include any explanations, only return valid JSON.
 `;
 
-    const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }] });
+    const result = await model.generateContent({ 
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig
+    });
+    
     const responseText = result.response.text();
     console.log("Gemini Raw Response:", responseText);
     const jsonMatch = responseText.match(/{[\s\S]*}/);

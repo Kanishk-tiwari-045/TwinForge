@@ -1,0 +1,23 @@
+[
+    {
+        "category":"Gaming",
+        "visit_count":52,
+        "recency":-1,
+        "unique_sites":6,
+        "interest":"High"
+    },
+    {
+        "category":"Technology",
+        "visit_count":49,
+        "recency":0,
+        "unique_sites":5,
+        "interest":"High"
+    },
+    {
+        "category":"Finance",
+        "visit_count":40,
+        "recency":0,
+        "unique_sites":4,
+        "interest":"High"
+    }
+]
