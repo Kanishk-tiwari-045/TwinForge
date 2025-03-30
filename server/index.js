@@ -1,3 +1,4 @@
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -16,6 +17,14 @@ const supabase = createClient("https://hfduzkjpzvowjzrkeagp.supabase.co","eyJhbG
 // Initialize Gemini AI"
 const genAI = new GoogleGenerativeAI("AIzaSyCJ5GaisuqS73ju5rqs0zAkMvaoR09pOF8");
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+const generationConfig = {
+  temperature: 0.5, // Lower temperature for more deterministic responses
+  topP: 0.8,
+  topK: 30,
+  maxOutputTokens: 1024,
+  responseMimeType: "text/plain",
+};
 
 /**
  * API 1: Analyze and Save User Writing Style
@@ -83,7 +92,7 @@ Do not include any explanations, only return valid JSON.
     const { error } = await supabase
   .from("user_styles")
   .upsert(
-    { username, ...userStyleData },
+    { user_id, ...userStyleData },
     { 
       conflict: 'username', // Newer syntax
       updateColumns: ['tone', 'vocabulary', 'humor', 'emoji_usage', 'sentence_structure', 'greeting_style', 'closing_style', 'response_pattern', 'level_of_enthusiasm'] // Explicitly list columns to update
@@ -172,6 +181,43 @@ Do not include any explanations, only return valid JSON.
   } catch (error) {
     console.error("Error generating response:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/detect-ai", async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "Text is required" });
+
+    const strictPrompt = `
+    You are an advanced AI text evaluator with expertise in distinguishing AI-generated content from human-written text.
+    Analyze the following text thoroughly based on these factors:
+
+    - **Sentence Complexity & Variance:** AI-generated text often has a consistent structure and lacks the variability seen in human writing.
+    - **Logical Coherence:** Does the text follow a clear, logical progression, or does it contain inconsistencies that AI might generate?
+    - **Repetitive Patterns:** AI tends to reuse phrases or structures more often than humans.
+    - **Linguistic Fluency & Natural Errors:** Human writing may have minor grammatical or stylistic errors, whereas AI tends to be overly polished.
+    - **Emotional & Personal Touch:** Does the text contain personal anecdotes, opinions, or subjective viewpoints?
+    - **Fact-checking & Hallucination Detection:** If the text contains factual claims, do they make sense, or do they seem fabricated?
+
+    Strictly analyze these aspects and determine **only** whether the text is AI-generated or human-written.
+    Respond **only** with "true" (if AI-generated) or "false" (if human-written) without any additional explanation.
+    `;
+
+    const chatSession = model.startChat({
+      generationConfig,
+      history: [{ role: "user", parts: [{ text: strictPrompt }] }],
+    });
+
+    const result = await chatSession.sendMessage(text);
+    const responseText = result.response.text().trim().toLowerCase();
+    
+    const isAIGenerated = responseText.includes("true");
+
+    res.json({ ai_generated: isAIGenerated });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, CSSProperties } from 'react';
 import { Trash2, Plus, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react';
 
@@ -24,13 +25,36 @@ const UserPrompting: React.FC = () => {
     }
   };
 
-  const addMessage = () => {
-    if (inputText.trim()) {
-      setMessages([...messages, inputText.trim()]);
-      setInputText('');
-      setError(null);
+  const addMessage = async () => {
+    if (!inputText.trim()) return;
+  
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const response = await fetch("http://localhost:3000/detect-ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: inputText.trim() }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.ai_generated) {
+        setError("AI-generated text detected. Please enter a human-written email/message.");
+      } else {
+        setMessages([...messages, inputText.trim()]);
+        setInputText("");
+      }
+    } catch (err) {
+      setError("Error verifying text. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   const removeMessage = (index: number) => {
     setMessages(messages.filter((_, i) => i !== index));
