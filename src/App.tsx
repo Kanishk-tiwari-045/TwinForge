@@ -1,15 +1,16 @@
-// import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import Pricing from './components/Pricing';
-import About from './components/About';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-import UserPrompting from './components/UserPrompting';
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Features from "./components/Features";
+import Pricing from "./components/Pricing";
+import About from "./components/About";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import UserPrompting from "./components/UserPrompting";
+import ResearchAssistant from "./components/ResearchAssistant"; // Add this import
 
 function App() {
   return (
@@ -18,19 +19,27 @@ function App() {
         <Navbar />
         <Toaster position="top-right" />
         <Routes>
-          <Route path="/" element={
-            <>
-              <Hero />
-              <Features />
-              <Pricing />
-              <About />
-            </>
-          } />
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <Features />
+                <Pricing />
+                <About />
+              </>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/user-prompting" element={<UserPrompting />} />
           <Route path="/email-assistant" element={<UserPrompting />} />
+          <Route
+            path="/research-assistant"
+            element={<ResearchAssistant />}
+          />
+          {/* Add this route */}
         </Routes>
       </div>
     </Router>

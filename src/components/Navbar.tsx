@@ -1,17 +1,18 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const navigate = useNavigate();
 
   const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Features', href: '/#features' },
-    { label: 'Pricing', href: '/#pricing' },
-    { label: 'About', href: '/#about' },
-    { label: 'Login', href: '/login' },
+    { label: "Home", href: "/" },
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "About", href: "/#about" },
+    { label: "Research Assistant", href: "/research-assistant" }, // Added this
+    { label: "Login", href: "/login" },
   ];
 
   return (
@@ -19,13 +20,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
+            <div
+              className="flex-shrink-0 cursor-pointer"
+              onClick={() => navigate("/")}
+            >
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
                 DigiTwin
               </span>
             </div>
           </div>
-          
+
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navItems.map((item) => (
@@ -33,6 +37,10 @@ export default function Navbar() {
                   key={item.label}
                   href={item.href}
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent default anchor behavior
+                    navigate(item.href.split("#")[0]); // Navigate to base path
+                  }}
                 >
                   {item.label}
                 </a>
@@ -60,7 +68,11 @@ export default function Navbar() {
                 key={item.label}
                 href={item.href}
                 className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(item.href.split("#")[0]);
+                  setIsOpen(false);
+                }}
               >
                 {item.label}
               </a>
