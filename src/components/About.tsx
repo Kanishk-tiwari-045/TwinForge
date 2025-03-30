@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { Shield, Globe, Users, Clock } from 'lucide-react';
 
 const stats = [

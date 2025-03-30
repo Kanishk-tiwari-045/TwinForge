@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Auto History Tracker",
+    "version": "1.0",
+    "description": "Automatically track browsing history with durations and save to Supabase.",
+    "permissions": [
+      "identity",
+      "tabs",
+      "webNavigation",
+      "storage",
+      "activeTab",
+      "alarms"
+    ],
+    "host_permissions": [
+      "*://*/*"
+    ],
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
+  

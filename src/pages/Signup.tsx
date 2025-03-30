@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { User, Lock, AlertCircle } from 'lucide-react';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,14 +15,15 @@ export default function Signup() {
     setError(null);
     setLoading(true);
 
+    // Construct a dummy email using the username.
+    const constructedEmail = `${username}@myapp.com`;
+
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: constructedEmail,
         password,
         options: {
-          data: {
-            username,
-          },
+          data: { username },
         },
       });
 
@@ -32,14 +32,14 @@ export default function Signup() {
       }
 
       if (data.user) {
-        // Create a profile in the public.profiles table
+        // Create a profile in the "profiles" table
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
             {
               id: data.user.id,
               username,
-              email,
+              email: constructedEmail,
               subscription: 'free',
             },
           ]);
@@ -48,6 +48,9 @@ export default function Signup() {
           throw profileError;
         }
 
+        // Store username and user ID in localStorage for later use
+        localStorage.setItem('username', username);
+        localStorage.setItem('user_id', data.user.id);
         navigate('/dashboard');
       }
     } catch (err) {
@@ -89,24 +92,6 @@ export default function Signup() {
                 onChange={(e) => setUsername(e.target.value)}
                 className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm"
                 placeholder="Username"
-              />
-            </div>
-
-            <div className="relative">
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm"
-                placeholder="Email address"
               />
             </div>
 

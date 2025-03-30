@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Lock, User, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -15,9 +15,12 @@ export default function Login() {
     setError(null);
     setLoading(true);
 
+    // Construct the dummy email from username.
+    const constructedEmail = `${username}@myapp.com`;
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: constructedEmail,
         password,
       });
 
@@ -26,6 +29,9 @@ export default function Login() {
       }
 
       if (data.user) {
+        // Store username and user ID in localStorage for later use
+        localStorage.setItem('username', username);
+        localStorage.setItem('user_id', data.user.id);
         navigate('/dashboard');
       }
     } catch (err) {
@@ -54,20 +60,19 @@ export default function Login() {
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm space-y-4">
             <div className="relative">
-              <label htmlFor="email" className="sr-only">
-                Email address
+              <label htmlFor="username" className="sr-only">
+                Username
               </label>
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                name="username"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm"
-                placeholder="Email address"
+                placeholder="Username"
               />
             </div>
             

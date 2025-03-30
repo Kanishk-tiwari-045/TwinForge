@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auto History Tracker</title>
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      color: #333;
+    }
+    h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    #user-email {
+      font-weight: bold;
+      color: #0077cc;
+    }
+    #history-list {
+      list-style: none;
+      padding: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #history-list li {
+      padding: 6px;
+      border-bottom: 1px solid #eee;
+      word-break: break-all;
+    }
+    #history-list li:last-child {
+      border-bottom: none;
+    }
+    #refreshBtn {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 12px;
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Auto History Tracker</h2>
+  <p>Email: <span id="user-email">Loading...</span></p>
+  <button id="refreshBtn">Refresh History</button>
+  <ul id="history-list"></ul>
+  <script src="popup.js"></script>
+</body>
+</html>

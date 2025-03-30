@@ -79,41 +79,45 @@ export default function Features() {
         </div>
 
         <div className="mt-20 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="relative group bg-gray-800/50 p-6 rounded-2xl hover:bg-gray-800/80 transition-all duration-300 border border-gray-700/50 hover:border-purple-500/50 backdrop-blur-sm"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                  <feature.icon className="w-6 h-6 text-blue-400" />
-                </div>
+          {features.map((feature) => {
+            // Declare the IconComponent inside the map callback
+            const IconComponent = feature.icon as React.FC<React.SVGProps<SVGSVGElement>>;
+            return (
+              <div
+                key={feature.title}
+                className="relative group bg-gray-800/50 p-6 rounded-2xl hover:bg-gray-800/80 transition-all duration-300 border border-gray-700/50 hover:border-purple-500/50 backdrop-blur-sm"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <h3 className="mt-4 text-xl font-semibold text-white">
-                  {feature.title}
-                </h3>
-                
-                <p className="mt-2 text-gray-400">
-                  {feature.description}
-                </p>
-
-                {feature.endpoints && (
-                  <div className="mt-4 space-y-2">
-                    {feature.endpoints.map((endpoint) => (
-                      <div
-                        key={endpoint}
-                        className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded-lg"
-                      >
-                        {endpoint}
-                      </div>
-                    ))}
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                    <IconComponent className="w-6 h-6 text-blue-400" />
                   </div>
-                )}
+                  
+                  <h3 className="mt-4 text-xl font-semibold text-white">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="mt-2 text-gray-400">
+                    {feature.description}
+                  </p>
+
+                  {feature.endpoints && (
+                    <div className="mt-4 space-y-2">
+                      {feature.endpoints.map((endpoint) => (
+                        <div
+                          key={endpoint}
+                          className="text-sm font-mono text-gray-500 bg-gray-800/50 px-3 py-1 rounded-lg"
+                        >
+                          {endpoint}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
