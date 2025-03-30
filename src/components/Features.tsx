@@ -1,24 +1,13 @@
 import React from 'react';
-import { Brain, Mail, Calendar, FileText, Search, Zap } from 'lucide-react';
+import { Mail, Calendar, FileText, Search, Zap } from 'lucide-react';
 import type { Feature } from '../types';
 
 const features: Feature[] = [
-  {
-    title: 'AI-Powered Digital Twin',
-    description: 'Your personal AI assistant that learns from your interactions and generates context-aware responses tailored to your communication style.',
-    icon: Brain,
-    endpoints: [
-      'POST /ai/train – Train the AI on your data',
-      'POST /ai/generate – Generate personalized responses',
-      'POST /ai/adapt – Improve through reinforcement learning'
-    ]
-  },
   {
     title: 'Smart Email Assistant',
     description: 'Intelligent email management that helps you compose, reply, and schedule emails with AI-powered suggestions.',
     icon: Mail,
     endpoints: [
-      'POST /email/fetch – Fetch emails from Gmail',
       'POST /email/reply – Generate smart replies',
       'POST /email/schedule – Schedule follow-ups'
     ]
@@ -29,16 +18,14 @@ const features: Feature[] = [
     icon: Calendar,
     endpoints: [
       'POST /calendar/schedule – Auto-schedule meetings',
-      'POST /calendar/reminder – Set smart reminders',
-      'POST /calendar/optimize – Optimize your schedule'
+      'POST /calendar/reminder – Set smart reminders'
     ]
   },
   {
-    title: 'Document Summarization',
+    title: 'News Summarization',
     description: 'Advanced AI summarization for emails, news articles, and documents, helping you stay on top of information.',
     icon: FileText,
     endpoints: [
-      'POST /summarize/email – Summarize emails',
       'POST /summarize/news – Summarize news articles',
       'POST /summarize/document – Extract key insights'
     ]
@@ -49,18 +36,7 @@ const features: Feature[] = [
     icon: Search,
     endpoints: [
       'POST /research/query – Find relevant articles',
-      'POST /research/insights – Generate AI insights',
-      'POST /research/trends – Analyze research trends'
-    ]
-  },
-  {
-    title: 'Task Automation',
-    description: 'Intelligent workflow automation that learns from your patterns and automates repetitive tasks.',
-    icon: Zap,
-    endpoints: [
-      'POST /automation/create – Create custom workflows',
-      'POST /automation/trigger – Execute automations',
-      'POST /automation/analyze – Optimize workflows'
+      'POST /research/insights – Generate AI insights'
     ]
   }
 ];
@@ -78,7 +54,7 @@ export default function Features() {
           </p>
         </div>
 
-        <div className="mt-20 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-20 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-2">
           {features.map((feature) => {
             // Declare the IconComponent inside the map callback
             const IconComponent = feature.icon as React.FC<React.SVGProps<SVGSVGElement>>;

@@ -1,16 +1,16 @@
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Features from "./components/Features";
-import Pricing from "./components/Pricing";
-import About from "./components/About";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import UserPrompting from "./components/UserPrompting";
+// import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import Features from './components/Features';
+import Pricing from './components/Pricing';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import NewsFeed from "./components/NewsFeed";
 import ResearchAssistant from "./components/ResearchAssistant"; // Add this import
+import Dashboard from './pages/Dashboard';
+import UserPrompting from './components/UserPrompting';
 
 function App() {
   return (
@@ -26,7 +26,6 @@ function App() {
                 <Hero />
                 <Features />
                 <Pricing />
-                <About />
               </>
             }
           />
@@ -35,11 +34,8 @@ function App() {
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/user-prompting" element={<UserPrompting />} />
           <Route path="/email-assistant" element={<UserPrompting />} />
-          <Route
-            path="/research-assistant"
-            element={<ResearchAssistant />}
-          />
-          {/* Add this route */}
+          <Route path="/news-feed" element={<NewsFeed />} />
+          <Route path="/research-assistant" element={<ResearchAssistant />} />
         </Routes>
       </div>
     </Router>
