@@ -46,7 +46,33 @@ const EmailPage: React.FC = () => {
   const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [expandedEmailId, setExpandedEmailId] = useState<number | null>(null);
+  const [isAddingSample, setIsAddingSample] = useState(false);
   const userId = localStorage.getItem('username');
+
+  const handleAddSampleEmails = async () => {
+    setIsAddingSample(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/emails/sample', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(`✅ ${data.message}`);
+        // Optionally reload the page to show new emails
+        window.location.reload();
+      } else {
+        alert('❌ Failed to add sample emails');
+      }
+    } catch (error) {
+      console.error('Error adding sample emails:', error);
+      alert('❌ Error adding sample emails');
+    } finally {
+      setIsAddingSample(false);
+    }
+  };
 
   const handleGenerateReply = async (emailId: number, emailBody: string) => {
     if (!userId) {
@@ -59,7 +85,7 @@ const EmailPage: React.FC = () => {
     setGeneratedReplies(prev => ({ ...prev, [emailId]: '' }));
 
     try {
-      const response = await fetch('http://localhost:3000/generate-response', {
+      const response = await fetch('http://localhost:3000/api/generate-response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId, email_or_msg: emailBody }),
@@ -253,6 +279,29 @@ const EmailPage: React.FC = () => {
         </div>
 
         <div style={styles.content}>
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleAddSampleEmails}
+              disabled={isAddingSample}
+              style={{
+                ...styles.button,
+                backgroundColor: '#48bb78',
+              }}
+            >
+              {isAddingSample ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Mail size={16} />
+                  Add Sample Emails
+                </>
+              )}
+            </button>
+          </div>
+
           <div style={styles.emailList}>
             {emails.map((email) => (
               <div key={email.id} style={styles.emailItem}>

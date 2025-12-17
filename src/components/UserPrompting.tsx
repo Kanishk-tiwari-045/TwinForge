@@ -32,7 +32,7 @@ const UserPrompting: React.FC = () => {
     setError(null);
   
     try {
-      const response = await fetch("http://localhost:3000/detect-ai", {
+      const response = await fetch("http://localhost:3000/api/detect-ai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,10 @@ const UserPrompting: React.FC = () => {
         setInputText("");
       }
     } catch (err) {
-      setError("Error verifying text. Please try again.");
+      // If AI detection fails (quota/error), still add the message
+      console.warn("AI detection failed, adding message anyway:", err);
+      setMessages([...messages, inputText.trim()]);
+      setInputText("");
     } finally {
       setLoading(false);
     }
@@ -81,7 +84,7 @@ const UserPrompting: React.FC = () => {
         return;
       }
     
-      const response = await fetch('http://localhost:3000/analyze-style', {
+      const response = await fetch('http://localhost:3000/api/analyze-style', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

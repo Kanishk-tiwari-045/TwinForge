@@ -1,66 +1,20 @@
 // background.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const SUPABASE_URL = 'https://hfduzkjpzvowjzrkeagp.supabase.co';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZHV6a2pwenZvd2p6cmtlYWdwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzIzMjMyOSwiZXhwIjoyMDU4ODA4MzI5fQ.tcpxeMb245YtSAKAyhIPUCKFpPapNHwsothzbf90apA';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log('Supabase client created in background service worker.');
-
-// ---------- Google OAuth Setup ----------
+// Configuration
+const BACKEND_URL = 'http://localhost:3000';
 let userEmail = null;
 
-function doGoogleOAuth() {
-  const clientId = '159280478946-7hhig5r48po3nhia56tnl8nsh09dakm6.apps.googleusercontent.com'; // Replace with your Google client ID
-  const redirectUri = `https://${chrome.runtime.id}.chromiumapp.org/`;
-  const authUrl =
-    'https://accounts.google.com/o/oauth2/v2/auth' +
-    `?client_id=${clientId}` +
-    '&response_type=token' +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.email')}` +
-    '&prompt=select_account';
-
-  chrome.identity.launchWebAuthFlow(
-    { url: authUrl, interactive: true },
-    async (redirectResponseUrl) => {
-      if (chrome.runtime.lastError) {
-        console.error('OAuth flow error:', chrome.runtime.lastError.message);
-        return;
-      }
-      if (redirectResponseUrl) {
-        const accessToken = getAccessTokenFromUrl(redirectResponseUrl);
-        if (accessToken) {
-          try {
-            const userInfo = await fetchGoogleUserInfo(accessToken);
-            userEmail = userInfo.email || null;
-            console.log('User email fetched via OAuth:', userEmail);
-          } catch (err) {
-            console.error('Failed to fetch user info:', err);
-          }
-        }
-      }
-    }
-  );
-}
-
-function getAccessTokenFromUrl(redirectUrl) {
-  const hashFragment = redirectUrl.split('#')[1];
-  if (!hashFragment) return null;
-  const params = new URLSearchParams(hashFragment);
-  return params.get('access_token');
-}
-
-async function fetchGoogleUserInfo(token) {
-  const resp = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (!resp.ok) {
-    throw new Error(`Userinfo request failed: ${resp.status}`);
+// Get user email from storage or prompt
+async function getUserEmail() {
+  const result = await chrome.storage.local.get(['userEmail']);
+  if (result.userEmail) {
+    userEmail = result.userEmail;
+    console.log('User email loaded:', userEmail);
   }
-  return await resp.json();
+  return userEmail;
 }
+
+// Initialize
+getUserEmail();
 
 // ---------- Tracking Tab Durations ----------
 let currentTabId = null;
@@ -83,16 +37,28 @@ function finishTracking() {
 
 async function insertHistoryRecord(email, url, title, duration) {
   try {
-    const { data, error } = await supabase
-      .from('browsing_history')
-      .insert([{ email, url, title, duration }]);
-    if (error) {
-      console.error('Error inserting record:', JSON.stringify(error, null, 2));
+    const response = await fetch(`${BACKEND_URL}/api/history`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        url,
+        title,
+        duration,
+        last_visit_time: new Date().toISOString()
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('History record saved:', data);
     } else {
-      console.log('Record inserted:', data);
+      console.error('Failed to save history:', response.status, response.statusText);
     }
   } catch (err) {
-    console.error('Insert failed:', err);
+    console.error('Error saving history:', err);
   }
 }
 
@@ -119,11 +85,9 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 // ---------- Chrome Event Listeners ----------
 chrome.runtime.onStartup.addListener(() => {
   console.log('Extension starting...');
-  doGoogleOAuth();
 });
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed...');
-  doGoogleOAuth();
 });
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -184,19 +148,19 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   if (msg.command === 'getEmail') {
     sendResponse({ email: userEmail || '' });
+  } else if (msg.command === 'setEmail') {
+    userEmail = msg.email;
+    await chrome.storage.local.set({ userEmail: msg.email });
+    console.log('User email set to:', userEmail);
+    sendResponse({ success: true });
   } else if (msg.command === 'getHistory') {
     try {
-      const { data, error } = await supabase
-        .from('browsing_history')
-        .select('*')
-        .eq('email', userEmail)
-        .order('id', { ascending: false })
-        .limit(20);
-      if (error) {
-        console.error('Error fetching history:', error);
-        sendResponse({ history: [] });
+      const response = await fetch(`${BACKEND_URL}/api/history?email=${encodeURIComponent(userEmail)}`);
+      if (response.ok) {
+        const history = await response.json();
+        sendResponse({ history });
       } else {
-        sendResponse({ history: data });
+        sendResponse({ history: [] });
       }
     } catch (err) {
       console.error('Fetch history error:', err);

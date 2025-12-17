@@ -29,7 +29,7 @@ const ResearchAssistant: React.FC = () => {
 
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/research-insights`,
+        `${BACKEND_URL}/api/research-insights`,
         { user_id: userId, topic: interest },
         { headers: { "Content-Type": "application/json" } }
       );

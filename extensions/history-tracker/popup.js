@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const emailSpan = document.getElementById('user-email');
+    const emailInput = document.getElementById('email-input');
+    const saveEmailBtn = document.getElementById('saveEmailBtn');
     const historyList = document.getElementById('history-list');
     const refreshBtn = document.getElementById('refreshBtn');
   
@@ -7,8 +9,23 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.runtime.sendMessage({ command: 'getEmail' }, (response) => {
         if (response && response.email) {
           emailSpan.textContent = response.email;
+          emailInput.value = response.email;
         } else {
-          emailSpan.textContent = 'Not logged in';
+          emailSpan.textContent = 'Not set';
+        }
+      });
+    }
+
+    function saveEmail() {
+      const email = emailInput.value.trim();
+      if (!email) {
+        alert('Please enter a valid email');
+        return;
+      }
+      chrome.runtime.sendMessage({ command: 'setEmail', email }, (response) => {
+        if (response && response.success) {
+          alert('Email saved successfully!');
+          updateEmail();
         }
       });
     }
@@ -37,20 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   
-    // Update email and history on load
+    // Update email on load
     updateEmail();
-    updateHistory();
   
+    // Save email button
+    saveEmailBtn.addEventListener('click', saveEmail);
+
     // Refresh history manually
     refreshBtn.addEventListener('click', () => {
-      updateEmail();
       updateHistory();
     });
   
-    // Automatically refresh every 5 seconds
+    // Automatically refresh every 10 seconds
     setInterval(() => {
-      updateEmail();
       updateHistory();
-    }, 5000);
+    }, 10000);
   });
   

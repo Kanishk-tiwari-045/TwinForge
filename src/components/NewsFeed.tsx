@@ -23,7 +23,7 @@ const NewsFeed: React.FC = () => {
   // Fetch news articles on component mount
   useEffect(() => {
     axios
-      .get("/news_articles.json")
+      .get("/data/news_articles.json")
       .then((response) => {
         setArticles(response.data);
         setLoading(false);

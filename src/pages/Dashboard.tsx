@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../types/database';
 import {
   Brain,
   Mail,
@@ -52,17 +52,12 @@ export default function Dashboard() {
       alert("User not found. Please log in.");
       return;
     }
-    // Query Supabase to check if the username exists in user_styles
-    const { data, error } = await supabase
-      .from("user_styles")
-      .select("*")
-      .eq("user_id", username);
-    if (error) {
-      console.error("Error checking user style:", error);
-      alert("Something went wrong while checking your writing style.");
-      return;
-    }
-    if (data && data.length > 0) {
+    
+    // Check localStorage for user style (since we're using mock auth)
+    const styleKey = `user_style_${username}`;
+    const hasStyle = localStorage.getItem(styleKey);
+    
+    if (hasStyle) {
       // Found a record; navigate to /emails page
       navigate("/emails");
     } else {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../types/database';
 import {
   Brain,
   User as UserIcon,
@@ -14,25 +14,45 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Navigation items
-  const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Features', href: '/#features' },
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Pricing', href: '/#pricing' },
-    { label: 'Logout', action: 'logout' },
-  ];
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/login', '/signup'];
+
+  // Navigation items - only show logout when user is logged in
+  const getNavItems = () => {
+    const baseItems = [
+      { label: 'Home', href: '/' },
+      { label: 'Features', href: '/#features' },
+      { label: 'Pricing', href: '/#pricing' },
+    ];
+    
+    if (user) {
+      return [
+        ...baseItems,
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Logout', action: 'logout' },
+      ];
+    }
+    
+    return baseItems;
+  };
 
   // Fetch user data on component mount
   useEffect(() => {
     const getUser = async () => {
       try {
         const { data: { user: authUser } } = await supabase.auth.getUser();
+        
         if (!authUser) {
-          navigate('/login');
+          // Don't redirect on public routes
+          if (!publicRoutes.includes(location.pathname)) {
+            navigate('/login');
+          }
+          setLoading(false);
           return;
         }
+        
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -50,7 +70,7 @@ export default function Navbar() {
     };
 
     getUser();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   // Handle logout using handleLogout
   const handleLogout = async () => {
@@ -67,6 +87,8 @@ export default function Navbar() {
   if (loading) {
     return <div className="h-16 bg-gray-900"></div>;
   }
+
+  const navItems = getNavItems();
 
   return (
     <nav className="bg-gray-900 text-white shadow-lg">
@@ -114,12 +136,20 @@ export default function Navbar() {
                 <span className="text-sm font-medium">{user.username}</span>
               </div>
             ) : (
-              <a
-                href="/login"
-                className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-              >
-                Login
-              </a>
+              <div className="flex items-center space-x-2">
+                <a
+                  href="/login"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                >
+                  Login
+                </a>
+                <a
+                  href="/signup"
+                  className="px-3 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  Sign Up
+                </a>
+              </div>
             )}
           </div>
 
@@ -168,13 +198,22 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <a
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-              >
-                Login
-              </a>
+              <div className="space-y-2">
+                <a
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                >
+                  Login
+                </a>
+                <a
+                  href="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                >
+                  Sign Up
+                </a>
+              </div>
             )}
           </div>
         </div>

@@ -4,7 +4,6 @@
     "version": "1.0",
     "description": "Automatically track browsing history with durations and save to Supabase.",
     "permissions": [
-      "identity",
       "tabs",
       "webNavigation",
       "storage",
